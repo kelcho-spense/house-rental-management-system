@@ -14,12 +14,14 @@ import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/user.dto';
 import { UserRole, User } from '@prisma/client';
 import { ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { Roles } from 'src/auth/common/decorators/roles.decorator';
 
 @ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Roles(UserRole.ADMIN) // Only users with the role of 'admin' can access this route
   @Get() // GET /users or GET /users?limit=10&role=admin
   @ApiQuery({ name: 'role', enum: UserRole, required: false })
   @ApiQuery({ name: 'limit', required: false, type: Number })

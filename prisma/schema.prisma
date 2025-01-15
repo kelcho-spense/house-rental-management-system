@@ -79,29 +79,31 @@ enum CalendarProvider {
   OTHER
 }
 
+// User model
 model User {
-  id           Int      @id @default(autoincrement())
-  fullName     String
-  email        String   @unique
-  passwordHash String
-  role         UserRole
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
+  userId             Int            @id @default(autoincrement()) // Changed from id
+  fullName           String
+  email              String         @unique
+  passwordHash       String
+  role               UserRole
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  access_token_hash  String?
+  refresh_token_hash String?
   // Relations
-  tenant           Tenant?
-  messagesSent     Message[]      @relation("MessagesSent")
-  messagesReceived Message[]      @relation("MessagesReceived")
-  notifications    Notification[]
-  reports          Report[]
-  calendarSyncs    CalendarSync[]
+  tenant             Tenant?
+  messagesSent       Message[]      @relation("MessagesSent")
+  messagesReceived   Message[]      @relation("MessagesReceived")
+  notifications      Notification[]
+  reports            Report[]
+  calendarSyncs      CalendarSync[]
 
   @@index([role])
   @@index([createdAt])
 }
 
 model Tenant {
-  id          Int          @id @default(autoincrement())
+  tenantId    Int          @id @default(autoincrement()) // Changed from id
   phoneNumber String
   address     String
   status      TenantStatus @default(ACTIVE)
@@ -109,7 +111,7 @@ model Tenant {
   updatedAt   DateTime     @updatedAt
 
   // Relations
-  user                User                 @relation(fields: [userId], references: [id])
+  user                User                 @relation(fields: [userId], references: [userId])
   userId              Int                  @unique
   leaseAgreements     LeaseAgreement[]
   rentalPayments      RentalPayment[]
@@ -118,7 +120,7 @@ model Tenant {
 }
 
 model Property {
-  id           Int          @id @default(autoincrement())
+  propertyId   Int          @id @default(autoincrement()) // Changed from id
   title        String
   description  String
   type         PropertyType
@@ -143,58 +145,58 @@ model Property {
 }
 
 model Image {
-  id        Int      @id @default(autoincrement())
+  imageId   Int      @id @default(autoincrement()) // Changed from id
   url       String
   createdAt DateTime @default(now())
 
   // Relations
-  property   Property @relation(fields: [propertyId], references: [id])
+  property   Property @relation(fields: [propertyId], references: [propertyId])
   propertyId Int
 }
 
 model Video {
-  id        Int      @id @default(autoincrement())
+  videoId   Int      @id @default(autoincrement()) // Changed from id
   url       String
   createdAt DateTime @default(now())
 
   // Relations
-  property   Property @relation(fields: [propertyId], references: [id])
+  property   Property @relation(fields: [propertyId], references: [propertyId])
   propertyId Int
 }
 
 model LeaseAgreement {
-  id        Int         @id @default(autoincrement())
-  startDate DateTime
-  endDate   DateTime
-  status    LeaseStatus
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  leaseAgreementId Int         @id @default(autoincrement()) // Changed from id
+  startDate        DateTime
+  endDate          DateTime
+  status           LeaseStatus
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
   // Relations
-  tenant        Tenant          @relation(fields: [tenantId], references: [id])
-  tenantId      Int
-  property      Property        @relation(fields: [propertyId], references: [id])
-  propertyId    Int
-  documents     Document[]
+  tenant         Tenant          @relation(fields: [tenantId], references: [tenantId])
+  tenantId       Int
+  property       Property        @relation(fields: [propertyId], references: [propertyId])
+  propertyId     Int
+  documents      Document[]
   rentalPayments RentalPayment[]
 }
 
 model RentalPayment {
-  id               Int            @id @default(autoincrement())
-  amount           Float
-  method           PaymentMethod
-  status           PaymentStatus  @default(PENDING)
-  invoice          String // URL or identifier for invoice
-  receipt          String? // URL or identifier for receipt
-  dueDate          DateTime
-  paymentDate      DateTime?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  rentalPaymentId Int           @id @default(autoincrement()) // Changed from id
+  amount          Float
+  method          PaymentMethod
+  status          PaymentStatus @default(PENDING)
+  invoice         String // URL or identifier for invoice
+  receipt         String? // URL or identifier for receipt
+  dueDate         DateTime
+  paymentDate     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   // Relations
-  tenant           Tenant         @relation(fields: [tenantId], references: [id])
+  tenant           Tenant         @relation(fields: [tenantId], references: [tenantId])
   tenantId         Int
-  leaseAgreement   LeaseAgreement @relation(fields: [leaseAgreementId], references: [id])
+  leaseAgreement   LeaseAgreement @relation(fields: [leaseAgreementId], references: [leaseAgreementId])
   leaseAgreementId Int
 
   @@index([status])
@@ -203,21 +205,21 @@ model RentalPayment {
 }
 
 model MaintenanceRequest {
-  id            Int               @id @default(autoincrement())
-  description   String
-  status        MaintenanceStatus @default(OPEN)
-  scheduledDate DateTime?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  maintenanceRequestId Int               @id @default(autoincrement()) // Changed from id
+  description          String
+  status               MaintenanceStatus @default(OPEN)
+  scheduledDate        DateTime?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
 
   // Relations
-  tenant        Tenant            @relation(fields: [tenantId], references: [id])
-  tenantId      Int
-  property      Property          @relation(fields: [propertyId], references: [id])
-  propertyId    Int
-  assignedTo    Contractor?       @relation(fields: [contractorId], references: [id])
-  contractorId  Int?
-  documents     Document[]
+  tenant       Tenant      @relation(fields: [tenantId], references: [tenantId])
+  tenantId     Int
+  property     Property    @relation(fields: [propertyId], references: [propertyId])
+  propertyId   Int
+  assignedTo   Contractor? @relation(fields: [contractorId], references: [contractorId])
+  contractorId Int?
+  documents    Document[]
 
   @@index([status])
   @@index([scheduledDate])
@@ -225,11 +227,11 @@ model MaintenanceRequest {
 }
 
 model Contractor {
-  id                  Int                  @id @default(autoincrement())
-  name                String
-  contactInformation  String
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
+  contractorId       Int      @id @default(autoincrement()) // Changed from id
+  name               String
+  contactInformation String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   // Relations
   maintenanceRequests MaintenanceRequest[]
@@ -242,31 +244,31 @@ enum DocumentType {
 }
 
 model Document {
-  id                   Int                 @id @default(autoincrement())
-  name                 String
-  url                  String
-  type                 DocumentType
-  createdAt            DateTime            @default(now())
-  updatedAt            DateTime            @updatedAt
+  documentId Int          @id @default(autoincrement()) // Changed from id
+  name       String
+  url        String
+  type       DocumentType
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 
   // Relations
-  leaseAgreement       LeaseAgreement?     @relation(fields: [leaseAgreementId], references: [id])
+  leaseAgreement       LeaseAgreement?     @relation(fields: [leaseAgreementId], references: [leaseAgreementId])
   leaseAgreementId     Int?
-  maintenanceRequest   MaintenanceRequest? @relation(fields: [maintenanceRequestId], references: [id])
+  maintenanceRequest   MaintenanceRequest? @relation(fields: [maintenanceRequestId], references: [maintenanceRequestId])
   maintenanceRequestId Int?
 }
 
 model Message {
-  id         Int               @id @default(autoincrement())
-  content    String
-  type       CommunicationType
-  read       Boolean           @default(false)
-  createdAt  DateTime          @default(now())
+  messageId Int               @id @default(autoincrement()) // Changed from id
+  content   String
+  type      CommunicationType
+  read      Boolean           @default(false)
+  createdAt DateTime          @default(now())
 
   // Relations
-  sender     User              @relation("MessagesSent", fields: [senderId], references: [id])
+  sender     User @relation("MessagesSent", fields: [senderId], references: [userId])
   senderId   Int
-  receiver   User              @relation("MessagesReceived", fields: [receiverId], references: [id])
+  receiver   User @relation("MessagesReceived", fields: [receiverId], references: [userId])
   receiverId Int
 
   @@index([senderId, receiverId])
@@ -275,32 +277,32 @@ model Message {
 }
 
 model Notification {
-  id        Int               @id @default(autoincrement())
-  type      CommunicationType
-  message   String
-  read      Boolean           @default(false)
-  createdAt DateTime          @default(now())
+  notificationId Int               @id @default(autoincrement()) // Changed from id
+  type           CommunicationType
+  message        String
+  read           Boolean           @default(false)
+  createdAt      DateTime          @default(now())
 
   // Relations
-  user      User              @relation(fields: [userId], references: [id])
-  userId    Int
+  user   User @relation(fields: [userId], references: [userId])
+  userId Int
 
   @@index([userId, read])
   @@index([createdAt])
 }
 
 model Appointment {
-  id            Int      @id @default(autoincrement())
+  appointmentId Int               @id @default(autoincrement()) // Changed from id
   scheduledTime DateTime
   status        AppointmentStatus
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
   // Relations
-  property      Property @relation(fields: [propertyId], references: [id])
-  propertyId    Int
-  tenant        Tenant   @relation(fields: [tenantId], references: [id])
-  tenantId      Int
+  property   Property @relation(fields: [propertyId], references: [propertyId])
+  propertyId Int
+  tenant     Tenant   @relation(fields: [tenantId], references: [tenantId])
+  tenantId   Int
 
   @@index([scheduledTime])
   @@index([status])
@@ -308,27 +310,27 @@ model Appointment {
 }
 
 model Report {
-  id            Int      @id @default(autoincrement())
-  title         String
-  description   String
-  data          Json
-  createdAt     DateTime @default(now())
+  reportId    Int      @id @default(autoincrement()) // Changed from id
+  title       String
+  description String
+  data        Json
+  createdAt   DateTime @default(now())
 
   // Relations
-  generatedBy   User     @relation(fields: [generatedById], references: [id])
+  generatedBy   User @relation(fields: [generatedById], references: [userId])
   generatedById Int
 }
 
 model CalendarSync {
-  id           Int       @id @default(autoincrement())
-  provider     CalendarProvider
-  accessToken  String
-  refreshToken String?
-  expiresAt    DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  calendarSyncId Int              @id @default(autoincrement()) // Changed from id
+  provider       CalendarProvider
+  accessToken    String
+  refreshToken   String?
+  expiresAt      DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   // Relations
-  user         User      @relation(fields: [userId], references: [id])
-  userId       Int
+  user   User @relation(fields: [userId], references: [userId])
+  userId Int
 }

@@ -82,7 +82,6 @@ export class AuthService {
       const newUser = await this.databaseService.user.create({
         data: {
           fullName: createUserData.fullName,
-          username: createUserData.username,
           email: createUserData.email,
           passwordHash: hashedPassword,
           role: createUserData.role,

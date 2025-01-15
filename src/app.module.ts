@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { RedisOptions } from './redis';
 import { CacheModule } from '@nestjs/cache-manager';
+import { RolesGuard } from './auth/common/guards/roles.guard';
 
 @Module({
   imports: [
@@ -26,6 +27,10 @@ import { CacheModule } from '@nestjs/cache-manager';
     {
       provide: 'APP_GUARD',
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: 'APP_GUARD',
+      useClass: RolesGuard,
     },
   ],
 })
