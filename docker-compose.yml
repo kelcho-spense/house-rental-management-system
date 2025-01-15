@@ -1,0 +1,138 @@
+services:
+  # Development service
+  # Database service (PostgreSQL)
+  house-rental-db-dev-service:
+    image: postgres:17-alpine
+    container_name: house-rental-db-dev-container
+    ports:
+      - '5433:5432'
+    env_file:
+      - .env.development
+    volumes:
+      - postgres-data-dev-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - house-rental-dev-network
+    profiles:
+      - development
+  # API service (NESTJS)
+  house-rental-api-dev-service:
+    container_name: house-rental-api-dev-container
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    env_file:
+      - .env.development
+    ports:
+      - '8000:8000'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: sh -c "pnpm prisma:migrate && pnpm run start:dev"
+    depends_on:
+      house-rental-db-dev-service:
+        condition: service_healthy
+      house-rental-redis-dev-service:
+        condition: service_healthy
+    networks:
+      - house-rental-dev-network
+    profiles:
+      - development
+  # REdis service
+  house-rental-redis-dev-service:
+    image: redis:alpine
+    container_name: house-rental-redis-dev-container
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    env_file:
+      - .env.development
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - house-rental-cache-volume:/data
+    networks:
+      - house-rental-dev-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - development
+
+  # Production service
+  # Database service (PostgreSQL)
+  house-rental-db-prod-service:
+    image: postgres:17-alpine
+    container_name: house-rental-db-prod-container
+    ports:
+      - '5432:5432'
+    env_file:
+      - .env.production
+    volumes:
+      - postgres-data-prod-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - house-rental-prod-network
+    profiles:
+      - production
+  # API service (NESTJS)
+  house-rental-api-prod-service:
+    container_name: house-rental-api-prod-container
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      target: runner
+    env_file:
+      - .env.production
+    ports:
+      - '8080:8080'
+    command: sh -c "pnpm prisma:migrate && pnpm run start:prod"
+    depends_on:
+      house-rental-db-prod-service:
+        condition: service_healthy
+      house-rental-redis-prod-service:
+        condition: service_healthy
+    networks:
+      - house-rental-prod-network
+    profiles:
+      - production
+# REdis service
+  house-rental-redis-prod-service:
+    image: redis:alpine
+    container_name: house-rental-redis-prod-container
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    env_file:
+      - .env.production
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - house-rental-cache-volume:/data
+    networks:
+      - house-rental-prod-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    profiles:
+      - production
+volumes:
+  postgres-data-dev-volume:
+  postgres-data-prod-volume:
+  house-rental-cache-volume:
+    driver: local
+
+networks:
+  house-rental-dev-network:
+    driver: bridge
+  house-rental-prod-network:
+    driver: bridge
