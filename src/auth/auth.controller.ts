@@ -51,22 +51,4 @@ export class AuthController {
   ): Promise<Tokens> {
     return this.authService.refresh(userId, refreshToken);
   }
-
-  // @UseGuards(RtGuard)
-  // @Post('refresh')
-  // @HttpCode(HttpStatus.OK)
-  // refresh(
-  //   @GetCurrentUserId() userId: number,
-  //   @GetCurrentUser('refreshToken') refreshToken: string,
-  // ): Promise<Tokens> {
-  //   return this.authService.refresh(userId, refreshToken);
-  // }
-
-  // @UseGuards(AuthGuard('jwt-rt'))
-  // @Post('refresh')
-  // @HttpCode(HttpStatus.OK)
-  // refresh(@Req() req: Request): Promise<Tokens> {
-  //   const user = req.user;
-  //   return this.authService.refresh(user['sub'], user['email']);
-  // }
 }

@@ -16,14 +16,18 @@ export class AuthService {
   constructor(
     private readonly databaseService: DatabaseService,
     private jwtService: JwtService,
-  ) { }
+  ) {}
   //helper methods
   private async hashData(data: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);
     return bcrypt.hash(data, salt);
   }
 
-  async getTokens(userId: number, email: string, role: UserRole): Promise<Tokens> {
+  async getTokens(
+    userId: number,
+    email: string,
+    role: UserRole,
+  ): Promise<Tokens> {
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
         {
@@ -92,7 +96,11 @@ export class AuthService {
       });
 
       // Generate tokens
-      const tokens = await this.getTokens(newUser.userId, newUser.email, newUser.role);
+      const tokens = await this.getTokens(
+        newUser.userId,
+        newUser.email,
+        newUser.role,
+      );
 
       // save hashed refresh token
       await this.updateRefreshToken(newUser.userId, tokens.refresh_token);
@@ -119,7 +127,7 @@ export class AuthService {
     if (!passMatch) throw new UnauthorizedException('Invalid credentials');
 
     // Generate tokens
-    const tokens = await this.getTokens(user.userId, user.email);
+    const tokens = await this.getTokens(user.userId, user.email, user.role);
 
     // save hashed refresh token
     await this.updateRefreshToken(user.userId, tokens.refresh_token);
@@ -159,7 +167,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
 
     // Generate tokens
-    const tokens = await this.getTokens(user.userId, user.email);
+    const tokens = await this.getTokens(user.userId, user.email, user.role);
 
     // save hashed refresh token
     await this.updateRefreshToken(user.userId, tokens.refresh_token);

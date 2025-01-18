@@ -9,20 +9,23 @@ import {
   ParseIntPipe,
   ValidationPipe,
   ParseEnumPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/user.dto';
 import { UserRole, User } from '@prisma/client';
 import { ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { RolesGuard } from 'src/auth/common/guards/roles.guard';
 import { Roles } from 'src/auth/common/decorators/roles.decorator';
+import { AuthGuard } from '@nestjs/passport';
 
-@ApiBearerAuth()
 @Controller('users')
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  @Roles(UserRole.ADMIN) // Only users with the role of 'admin' can access this route
   @Get() // GET /users or GET /users?limit=10&role=admin
+  @Roles(UserRole.ADMIN) // Only users with the role of 'admin' can access this route
   @ApiQuery({ name: 'role', enum: UserRole, required: false })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   findAll(

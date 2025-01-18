@@ -26,4 +26,4 @@ Content-Type: application/json
 ### User Operations ###
 ### Get All Users
 GET http://localhost:8000/api/v1/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiRnJlc2hpYUBleGFtcGxlLmNvbSIsImlhdCI6MTczNjk2NTE1MywiZXhwIjoxNzM2OTY2MDUzfQ.ZJBmG7GnfyXOe7N9rOCWrgGbINsYWwrs24fQvyBx2Y0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiRnJlc2hpYUBleGFtcGxlLmNvbSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTczNzIyOTMwOCwiZXhwIjoxNzM3MjMwMjA4fQ.al_Kmvh8jPJ9G1TPUtxqv-fieWL-wzNw6pxavaEZfi4
