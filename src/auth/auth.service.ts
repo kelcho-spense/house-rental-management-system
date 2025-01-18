@@ -9,25 +9,27 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Tokens } from './types';
 import { loginDto } from './dto/auth.dto';
+import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly databaseService: DatabaseService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
   //helper methods
   private async hashData(data: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);
     return bcrypt.hash(data, salt);
   }
 
-  async getTokens(userId: number, email: string): Promise<Tokens> {
+  async getTokens(userId: number, email: string, role: UserRole): Promise<Tokens> {
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: userId,
           email,
+          role,
         },
         {
           secret: process.env.JWT_ACCESS_TOKEN_SECRET,
@@ -38,6 +40,7 @@ export class AuthService {
         {
           sub: userId,
           email,
+          role,
         },
         {
           secret: process.env.JWT_REFRESH_TOKEN_SECRET,
@@ -89,7 +92,7 @@ export class AuthService {
       });
 
       // Generate tokens
-      const tokens = await this.getTokens(newUser.userId, newUser.email);
+      const tokens = await this.getTokens(newUser.userId, newUser.email, newUser.role);
 
       // save hashed refresh token
       await this.updateRefreshToken(newUser.userId, tokens.refresh_token);

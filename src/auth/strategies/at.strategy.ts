@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 type JWTPayload = {
   sub: number;
   email: string;
+  role: string;
 };
 
 @Injectable()
